@@ -5,14 +5,11 @@ import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.text.Html;
 import android.util.Base64;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
-
-import com.example.newsreader.exceptions.ServerCommunicationError;
 
 public class ArticleDetailActivity extends AppCompatActivity {
 
@@ -21,8 +18,8 @@ public class ArticleDetailActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_article_detail);
 
-        Button btnBack = findViewById(R.id.btn_back);
-        btnBack.setOnClickListener(v -> finish());
+        TextView headerTitle = findViewById(R.id.header_title);
+        headerTitle.setOnClickListener(v -> finish());
 
         ImageView articleImage = findViewById(R.id.detail_article_image);
         TextView articleTitle = findViewById(R.id.detail_article_title);
