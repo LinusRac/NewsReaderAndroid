@@ -15,12 +15,9 @@ import com.example.newsreader.exceptions.ServerCommunicationError;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 public class MainActivity extends AppCompatActivity {
 
-    private final ExecutorService executorService = Executors.newSingleThreadExecutor();
     private ArticleAdapter adapter;
 
     @Override
@@ -42,20 +39,23 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void downloadArticlesAsync() {
-        executorService.execute(() -> {
+        new Thread(() -> {
             try {
-                Properties properties = new Properties();
+                final Properties properties = new Properties();
                 properties.setProperty("service_url", "https://sanger.dia.fi.upm.es/pmd-task/");
-                ModelManager modelManager = new ModelManager(properties);
-                List<Article> articles = modelManager.getArticles(1024, 0);
+                final ModelManager modelManager = new ModelManager(properties);
+                final List<Article> articles = modelManager.getArticles(1024, 0);
+
                 runOnUiThread(() -> {
-                    adapter.clear();
-                    adapter.addAll(articles);
-                    adapter.notifyDataSetChanged();
+                    if (articles != null) {
+                        adapter.clear();
+                        adapter.addAll(articles);
+                        adapter.notifyDataSetChanged();
+                    }
                 });
             } catch (AuthenticationError | ServerCommunicationError e) {
-                // Handle error
+                // Handle error, for example by showing a Toast
             }
-        });
+        }).start();
     }
 }
