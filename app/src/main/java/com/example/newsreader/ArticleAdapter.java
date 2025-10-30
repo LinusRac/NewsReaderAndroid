@@ -52,10 +52,10 @@ public class ArticleAdapter extends ArrayAdapter<Article> {
                     Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
                     articleImage.setImageBitmap(decodedByte);
                 } else {
-                    articleImage.setImageDrawable(ContextCompat.getDrawable(getContext(), R.drawable.ic_launcher_background));
+                    articleImage.setImageDrawable(ContextCompat.getDrawable(getContext(), R.drawable.baseline_document_scanner_24));
                 }
             } catch (ServerCommunicationError e) {
-                articleImage.setImageDrawable(ContextCompat.getDrawable(getContext(), R.drawable.ic_launcher_background));
+                articleImage.setImageDrawable(ContextCompat.getDrawable(getContext(), R.drawable.baseline_document_scanner_24));
             }
         }
 

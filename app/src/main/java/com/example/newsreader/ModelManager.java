@@ -27,8 +27,8 @@ import com.example.newsreader.exceptions.ServerCommunicationError;
 public class ModelManager {
 	
 	private String idUser;
-	private String authType;
-	private String apikey;
+	private String authType = "PUIRESTAUTH";
+	private String apikey = "ANON02";
 	
 	private boolean isAdministrator = false;
 	
