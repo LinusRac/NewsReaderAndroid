@@ -43,7 +43,7 @@ public class ArticleDetailActivity extends AppCompatActivity {
                 Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
                 articleImage.setImageBitmap(decodedByte);
             } else {
-                articleImage.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.baseline_document_scanner_24));
+                articleImage.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_document_placeholder));
             }
         }
     }
