@@ -67,7 +67,7 @@ public class ArticleDetailActivity extends AppCompatActivity {
         articleImage = findViewById(R.id.detail_article_image);
         TextView articleTitle = findViewById(R.id.detail_article_title);
         TextView articleCategory = findViewById(R.id.detail_article_category);
-        TextView articleIdUser = findViewById(R.id.detail_article_id_user);
+        TextView articleUsername = findViewById(R.id.detail_article_username);
         TextView articleLastModified = findViewById(R.id.detail_article_last_modified);
         TextView articleAbstract = findViewById(R.id.detail_article_abstract);
         TextView articleBody = findViewById(R.id.detail_article_body);
@@ -88,7 +88,7 @@ public class ArticleDetailActivity extends AppCompatActivity {
 
                 articleTitle.setText(article.getTitleText());
                 articleCategory.setText(article.getCategory());
-                articleIdUser.setText("User ID: " + article.getIdUser());
+                articleUsername.setText("Username: " + article.getUsername());
                 articleLastModified.setText("Last Modified: " + article.getLastModified());
                 articleAbstract.setText(Html.fromHtml(article.getAbstractText(), Html.FROM_HTML_MODE_COMPACT));
                 articleBody.setText(Html.fromHtml(article.getBodyText(), Html.FROM_HTML_MODE_COMPACT));

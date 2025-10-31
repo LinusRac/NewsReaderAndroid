@@ -19,6 +19,7 @@ public class Article extends ModelEntity{
 	private String bodyText;
 	private String footerText;
 	private int idUser;
+	private String username;
 	private Image mainImage;
 	private String imageDescription;
 	private String thumbnail;
@@ -33,8 +34,10 @@ public class Article extends ModelEntity{
 	protected Article(ModelManager mm, JSONObject jsonArticle){
 		super(mm);
 		try{
+			Logger.log(Logger.INFO, "Received article: " + jsonArticle.toJSONString());
 			id = Integer.parseInt(jsonArticle.get("id").toString());
 			idUser = Integer.parseInt(parseStringFromJson(jsonArticle,"id_user","0"));
+			username = parseStringFromJson(jsonArticle,"username","");
 			titleText = parseStringFromJson(jsonArticle,"title","").replaceAll("\\\\","");
 			category = parseStringFromJson(jsonArticle,"category","").replaceAll("\\\\","");
 			abstractText = parseStringFromJson(jsonArticle,"abstract","").replaceAll("\\\\","");
@@ -115,6 +118,11 @@ public class Article extends ModelEntity{
 	public int getIdUser(){
 		return idUser;
 	}
+
+	public String getUsername() {
+		return username;
+	}
+
 	public Image getImage() throws ServerCommunicationError {
 		Image image = mainImage;
 		if (mainImage==null && thumbnail!=null && !thumbnail.isEmpty()){

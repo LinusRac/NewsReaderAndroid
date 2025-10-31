@@ -81,7 +81,7 @@
             android:layout_marginTop="8dp">
 
             <TextView
-                android:id="@+id/detail_article_id_user"
+                android:id="@+id/detail_article_username"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="@android:color/darker_gray" />
