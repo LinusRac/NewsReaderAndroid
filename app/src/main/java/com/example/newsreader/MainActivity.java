@@ -3,8 +3,10 @@ package com.example.newsreader;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -26,6 +28,7 @@ public class MainActivity extends AppCompatActivity {
     private ArticleAdapter adapter;
     private List<Article> allArticles = new ArrayList<>();
     private ImageButton btnNational, btnEconomy, btnSports, btnTechnology, btnInternational, btnAll;
+    private ProgressBar loadingSpinner;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,6 +45,8 @@ public class MainActivity extends AppCompatActivity {
         adapter = new ArticleAdapter(this, new ArrayList<>());
         articleList.setAdapter(adapter);
 
+        loadingSpinner = findViewById(R.id.loading_spinner);
+
         articleList.setOnItemClickListener((parent, view, position, id) -> {
             Article article = adapter.getItem(position);
             if (article != null) {
@@ -50,6 +55,7 @@ public class MainActivity extends AppCompatActivity {
                 intent.putExtra("category", article.getCategory());
                 intent.putExtra("abstract", article.getAbstractText());
                 intent.putExtra("body", article.getBodyText());
+                intent.putExtra("user_id", article.getIdUser());
                 try {
                     Image image = article.getImage();
                     if (image != null) {
@@ -129,6 +135,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void downloadArticlesAsync() {
+        loadingSpinner.setVisibility(View.VISIBLE);
         new Thread(() -> {
             try {
                 final Properties properties = new Properties();
@@ -136,14 +143,23 @@ public class MainActivity extends AppCompatActivity {
                 final ModelManager modelManager = new ModelManager(properties);
                 allArticles = modelManager.getArticles(1024, 0);
 
+                if (allArticles != null && !allArticles.isEmpty()) {
+                    Article firstArticle = allArticles.get(0);
+                    Logger.log(Logger.INFO, "First article title: " + firstArticle.getTitleText());
+                }
+
                 runOnUiThread(() -> {
+                    loadingSpinner.setVisibility(View.GONE);
                     if (allArticles != null) {
                         filterArticles(null); // Initially show all articles
                     }
                 });
             } catch (AuthenticationError | ServerCommunicationError e) {
                 // Handle error, for example by showing a Toast
-                 runOnUiThread(() -> Toast.makeText(MainActivity.this, "Error downloading articles: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                 runOnUiThread(() -> {
+                     loadingSpinner.setVisibility(View.GONE);
+                     Toast.makeText(MainActivity.this, "Error downloading articles: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                 });
             }
         }).start();
     }

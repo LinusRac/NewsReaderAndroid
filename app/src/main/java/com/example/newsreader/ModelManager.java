@@ -120,7 +120,7 @@ public class ModelManager {
 			connection.setRequestMethod("POST"); 
 			connection.setRequestProperty("Content-Type", "application/json");
 			connection.setRequestProperty("charset", "utf-8");
-			//connection.setRequestProperty("Content-Length", "" + Integer.toString(parameters.getBytes().length));
+			//connection.setProperty("Content-Length", "" + Integer.toString(parameters.getBytes().length));
 			connection.setUseCaches (false);
 
 			JSONObject jsonParam = new JSONObject();
@@ -309,6 +309,7 @@ public class ModelManager {
 			int HttpResult =connection.getResponseCode();  
 			if(HttpResult ==HttpURLConnection.HTTP_OK){  
 				String res = parseHttpStreamResult(connection);
+				Logger.log(Logger.INFO, "Raw article data: " + res);
 				List<JSONObject> objects = this.readRestResultFromList(res);
 				for (JSONObject jsonObject : objects) {
 					result.add(new Article(this,jsonObject));
@@ -461,7 +462,7 @@ public class ModelManager {
 				String res = parseHttpStreamResult(connection);
 				//Logger.log (Logger.INFO, res);
 				// get id from status ok when saved
-				int id = readRestResultFromInsert(res);
+				int id = readRestResultFromInsert(res); 
 				Logger.log(Logger.INFO, "Object image saved with id:" + id);
 				return id;
 			}else{  
