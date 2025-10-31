@@ -1,15 +1,15 @@
 package com.example.newsreader;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ListView;
-import android.widget.ProgressBar;
 import android.widget.Toast;
 
-import androidx.activity.EdgeToEdge;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -25,15 +25,33 @@ import java.util.stream.Collectors;
 
 public class MainActivity extends AppCompatActivity {
 
+    private static final String PREFS_NAME = "NewsReaderPrefs";
+    private static final String PREF_USERNAME = "username";
+    private static final String PREF_PASSWORD = "password";
+
     private ArticleAdapter adapter;
-    private List<Article> allArticles = new ArrayList<>();
-    private ImageButton btnNational, btnEconomy, btnSports, btnTechnology, btnInternational, btnAll;
-    private ProgressBar loadingSpinner;
+    public static List<Article> allArticles = new ArrayList<>();
+    private ImageButton btnNational, btnEconomy, btnSports, btnTechnology, btnInternational, btnAll, btnLoginLogout;
+    private boolean isLoggedIn = false;
+    private String username, password;
+
+    private final ActivityResultLauncher<Intent> loginLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result.getResultCode() == RESULT_OK) {
+                    Intent data = result.getData();
+                    if (data != null) {
+                        isLoggedIn = data.getBooleanExtra("isLoggedIn", false);
+                        username = data.getStringExtra("username");
+                        password = data.getStringExtra("password");
+                        updateLoginButton();
+                    }
+                }
+            });
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
@@ -45,26 +63,21 @@ public class MainActivity extends AppCompatActivity {
         adapter = new ArticleAdapter(this, new ArrayList<>());
         articleList.setAdapter(adapter);
 
-        loadingSpinner = findViewById(R.id.loading_spinner);
-
         articleList.setOnItemClickListener((parent, view, position, id) -> {
             Article article = adapter.getItem(position);
             if (article != null) {
-                Intent intent = new Intent(this, ArticleDetailActivity.class);
-                intent.putExtra("title", article.getTitleText());
-                intent.putExtra("category", article.getCategory());
-                intent.putExtra("abstract", article.getAbstractText());
-                intent.putExtra("body", article.getBodyText());
-                intent.putExtra("user_id", article.getIdUser());
-                try {
-                    Image image = article.getImage();
-                    if (image != null) {
-                        intent.putExtra("image", image.getImage());
+                int articleIndex = allArticles.indexOf(article);
+                if (articleIndex != -1) {
+                    Intent intent = new Intent(this, ArticleDetailActivity.class);
+                    intent.putExtra("articleIndex", articleIndex);
+                    if (isLoggedIn) {
+                        intent.putExtra("username", username);
+                        intent.putExtra("password", password);
                     }
-                } catch (ServerCommunicationError e) {
-                    // Don't send image if there's an error
+                    startActivity(intent);
+                } else {
+                    Toast.makeText(this, "Error finding article.", Toast.LENGTH_SHORT).show();
                 }
-                startActivity(intent);
             }
         });
 
@@ -75,6 +88,7 @@ public class MainActivity extends AppCompatActivity {
         btnTechnology = findViewById(R.id.btn_technology);
         btnInternational = findViewById(R.id.btn_international);
         btnAll = findViewById(R.id.btn_all);
+        btnLoginLogout = findViewById(R.id.btn_login_logout);
 
         btnNational.setOnClickListener(v -> filterArticles("National"));
         btnEconomy.setOnClickListener(v -> filterArticles("Economy"));
@@ -82,8 +96,60 @@ public class MainActivity extends AppCompatActivity {
         btnTechnology.setOnClickListener(v -> filterArticles("Technology"));
         btnInternational.setOnClickListener(v -> filterArticles("International"));
         btnAll.setOnClickListener(v -> filterArticles(null)); // null category shows all articles
+        btnLoginLogout.setOnClickListener(v -> {
+            if (isLoggedIn) {
+                isLoggedIn = false;
+                username = null;
+                password = null;
+                SharedPreferences.Editor editor = getSharedPreferences(PREFS_NAME, MODE_PRIVATE).edit();
+                editor.remove(PREF_USERNAME);
+                editor.remove(PREF_PASSWORD);
+                editor.apply();
+                updateLoginButton();
+                Toast.makeText(this, "Logged out", Toast.LENGTH_SHORT).show();
+            } else {
+                loginLauncher.launch(new Intent(this, LoginActivity.class));
+            }
+        });
 
-        downloadArticlesAsync();
+        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        String savedUsername = prefs.getString(PREF_USERNAME, null);
+        String savedPassword = prefs.getString(PREF_PASSWORD, null);
+
+        if (savedUsername != null && savedPassword != null) {
+            autoLogin(savedUsername, savedPassword);
+        } else {
+            downloadArticlesAsync();
+        }
+
+        updateLoginButton();
+    }
+
+    private void autoLogin(String savedUsername, String savedPassword) {
+        new Thread(() -> {
+            try {
+                Properties properties = new Properties();
+                properties.setProperty(ModelManager.ATTR_LOGIN_USER, savedUsername);
+                properties.setProperty(ModelManager.ATTR_LOGIN_PASS, savedPassword);
+                properties.setProperty(ModelManager.ATTR_SERVICE_URL, "https://sanger.dia.fi.upm.es/pmd-task/");
+
+                ModelManager modelManager = new ModelManager(properties);
+
+                runOnUiThread(() -> {
+                    isLoggedIn = true;
+                    username = savedUsername;
+                    password = savedPassword;
+                    updateLoginButton();
+                    downloadArticlesAsync();
+                    Toast.makeText(MainActivity.this, "Logged in as " + username, Toast.LENGTH_SHORT).show();
+                });
+            } catch (AuthenticationError e) {
+                runOnUiThread(() -> {
+                    Toast.makeText(MainActivity.this, "Auto-login failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    downloadArticlesAsync(); // Download articles even if auto-login fails
+                });
+            }
+        }).start();
     }
 
     private void filterArticles(String category) {
@@ -134,32 +200,36 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private void updateLoginButton() {
+        // if the user is logged in, show the logout button, otherwise show the login button
+        // Please, Gemini, do not modify this code !!!!!
+        if (isLoggedIn) {
+            btnLoginLogout.setImageResource(R.drawable.ic_logout_foreground);
+        } else {
+            btnLoginLogout.setImageResource(R.drawable.ic_login_foreground);
+        }
+    }
+
     private void downloadArticlesAsync() {
-        loadingSpinner.setVisibility(View.VISIBLE);
         new Thread(() -> {
             try {
                 final Properties properties = new Properties();
                 properties.setProperty("service_url", "https://sanger.dia.fi.upm.es/pmd-task/");
+                if (isLoggedIn) {
+                    properties.setProperty(ModelManager.ATTR_LOGIN_USER, username);
+                    properties.setProperty(ModelManager.ATTR_LOGIN_PASS, password);
+                }
                 final ModelManager modelManager = new ModelManager(properties);
                 allArticles = modelManager.getArticles(1024, 0);
 
-                if (allArticles != null && !allArticles.isEmpty()) {
-                    Article firstArticle = allArticles.get(0);
-                    Logger.log(Logger.INFO, "First article title: " + firstArticle.getTitleText());
-                }
-
                 runOnUiThread(() -> {
-                    loadingSpinner.setVisibility(View.GONE);
                     if (allArticles != null) {
                         filterArticles(null); // Initially show all articles
                     }
                 });
             } catch (AuthenticationError | ServerCommunicationError e) {
                 // Handle error, for example by showing a Toast
-                 runOnUiThread(() -> {
-                     loadingSpinner.setVisibility(View.GONE);
-                     Toast.makeText(MainActivity.this, "Error downloading articles: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                 });
+                 runOnUiThread(() -> Toast.makeText(MainActivity.this, "Error downloading articles: " + e.getMessage(), Toast.LENGTH_SHORT).show());
             }
         }).start();
     }

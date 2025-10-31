@@ -114,6 +114,9 @@ public class Image extends ModelEntity{
 	public String getImage(){
 		return image;
 	}
-	
+
+	public void setData(String b64Image){
+		this.image = Utils.createScaledStrImage(b64Image,500,500);
+	}
 
 }
