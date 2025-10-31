@@ -22,6 +22,7 @@ public class Article extends ModelEntity{
 	private Image mainImage;
 	private String imageDescription;
 	private String thumbnail;
+	private String lastModified;
 
 	private String parseStringFromJson(JSONObject jsonArticle, String key, String def){
 		Object in = jsonArticle.getOrDefault(key,def);
@@ -39,7 +40,7 @@ public class Article extends ModelEntity{
 			abstractText = parseStringFromJson(jsonArticle,"abstract","").replaceAll("\\\\","");
 			bodyText = parseStringFromJson(jsonArticle,"body","").replaceAll("\\\\","");
 			footerText = parseStringFromJson(jsonArticle,"footer","").replaceAll("\\\\","");
-			
+			this.lastModified = parseStringFromJson(jsonArticle,"update_date","").replaceAll("\\\\","");
 			imageDescription = parseStringFromJson(jsonArticle,"image_description","").replaceAll("\\\\","");
 			thumbnail = parseStringFromJson(jsonArticle,"thumbnail_image","").replaceAll("\\\\","");
 			
@@ -62,7 +63,7 @@ public class Article extends ModelEntity{
 		this.titleText = titleText;
 		bodyText = body;
 		footerText = footer;
-		
+		this.lastModified = "01.01.2000";
 	}
 	
 	public void setId(int id){
@@ -106,7 +107,11 @@ public class Article extends ModelEntity{
 	public void setFooterText(String footerText) {
 		this.footerText = footerText;
 	}
-	
+
+	public String getLastModified() {
+		return lastModified;
+	}
+
 	public int getIdUser(){
 		return idUser;
 	}
@@ -165,4 +170,5 @@ public class Article extends ModelEntity{
 		//res.put("publication_date", publicationDate==null?null:Utils.dateToString(publicationDate));
 		return res;
 	}
+
 }

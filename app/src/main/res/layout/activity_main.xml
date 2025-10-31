@@ -7,20 +7,37 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <TextView
-        android:id="@+id/header_title"
+    <RelativeLayout
+        android:id="@+id/header"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:background="@android:color/holo_blue_dark"
-        android:gravity="center"
         android:padding="16dp"
-        android:text="PUI News"
-        android:textColor="@android:color/white"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <TextView
+            android:id="@+id/header_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="PUI News"
+            android:textColor="@android:color/white"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+        <ImageButton
+            android:id="@+id/btn_login_logout"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_login_foreground" />
+
+    </RelativeLayout>
 
     <LinearLayout
         android:id="@+id/navbar"
@@ -31,14 +48,14 @@
         android:padding="8dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/header_title">
+        app:layout_constraintTop_toBottomOf="@id/header">
 
         <ImageButton
             android:id="@+id/btn_national"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_weight="1"
-            android:src="@drawable/ic_national" />
+            android:src="@drawable/nav_national_foreground" />
 
         <ImageButton
             android:id="@+id/btn_economy"
@@ -50,16 +67,16 @@
         <ImageButton
             android:id="@+id/btn_sports"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_weight="1"
-            android:src="@drawable/ic_sports" />
+            android:src="@drawable/nav_sports_foreground" />
 
         <ImageButton
             android:id="@+id/btn_technology"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_weight="1"
-            android:src="@drawable/ic_technology" />
+            android:src="@drawable/nav_tech_foreground" />
 
         <ImageButton
             android:id="@+id/btn_international"
