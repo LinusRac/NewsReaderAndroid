@@ -4,8 +4,10 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -34,6 +36,7 @@ public class MainActivity extends AppCompatActivity {
     private ImageButton btnNational, btnEconomy, btnSports, btnTechnology, btnInternational, btnAll, btnLoginLogout;
     private boolean isLoggedIn = false;
     private String username, password;
+    private ProgressBar loadingSpinner;
 
     private final ActivityResultLauncher<Intent> loginLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
@@ -59,6 +62,7 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
+        loadingSpinner = findViewById(R.id.loading_spinner);
         ListView articleList = findViewById(R.id.article_list);
         adapter = new ArticleAdapter(this, new ArrayList<>());
         articleList.setAdapter(adapter);
@@ -211,6 +215,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void downloadArticlesAsync() {
+        runOnUiThread(() -> loadingSpinner.setVisibility(View.VISIBLE));
         new Thread(() -> {
             try {
                 final Properties properties = new Properties();
@@ -226,10 +231,14 @@ public class MainActivity extends AppCompatActivity {
                     if (allArticles != null) {
                         filterArticles(null); // Initially show all articles
                     }
+                    loadingSpinner.setVisibility(View.GONE);
                 });
             } catch (AuthenticationError | ServerCommunicationError e) {
                 // Handle error, for example by showing a Toast
-                 runOnUiThread(() -> Toast.makeText(MainActivity.this, "Error downloading articles: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                 runOnUiThread(() -> {
+                     Toast.makeText(MainActivity.this, "Error downloading articles: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                     loadingSpinner.setVisibility(View.GONE);
+                 });
             }
         }).start();
     }
