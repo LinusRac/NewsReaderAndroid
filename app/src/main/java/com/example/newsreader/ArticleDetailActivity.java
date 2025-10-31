@@ -18,20 +18,15 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
-import com.example.newsreader.exceptions.AuthenticationError;
 import com.example.newsreader.exceptions.ServerCommunicationError;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Properties;
 
 public class ArticleDetailActivity extends AppCompatActivity {
 
     private ImageView articleImage;
     private Article article;
-    private String username;
-    private String password;
 
     private final ActivityResultLauncher<Intent> imagePickerLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
@@ -43,15 +38,19 @@ public class ArticleDetailActivity extends AppCompatActivity {
                             InputStream inputStream = getContentResolver().openInputStream(imageUri);
                             Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
                             articleImage.setImageBitmap(bitmap);
-                            article.getImage().setData(Utils.imgToBase64String(bitmap));
 
-
+                            Image image = article.getImage();
+                            String b64Image = Utils.imgToBase64String(bitmap);
+                            if (image == null) {
+                                article.addImage(b64Image, "");
+                            } else {
+                                image.setData(b64Image);
+                                article.setImage(image);
+                            }
 
                             uploadImageToServer();
-                        } catch (IOException e) {
-                            Toast.makeText(this, "Failed to load image", Toast.LENGTH_SHORT).show();
-                        } catch (ServerCommunicationError e) {
-                            throw new RuntimeException(e);
+                        } catch (IOException | ServerCommunicationError e) {
+                            Toast.makeText(this, "Failed to process image: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                         }
                     }
                 }
@@ -83,8 +82,6 @@ public class ArticleDetailActivity extends AppCompatActivity {
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
             int articleIndex = extras.getInt("articleIndex", -1);
-            username = extras.getString("username");
-            password = extras.getString("password");
 
             if (articleIndex != -1) {
                 article = MainActivity.allArticles.get(articleIndex);
@@ -117,9 +114,9 @@ public class ArticleDetailActivity extends AppCompatActivity {
         new Thread(() -> {
             try {
                 this.article.save();
-                runOnUiThread(() -> Toast.makeText(this, "Image uploaded successfully", Toast.LENGTH_SHORT).show());
+                runOnUiThread(() -> Toast.makeText(ArticleDetailActivity.this, "Image uploaded successfully", Toast.LENGTH_SHORT).show());
             } catch (Exception e) {
-                runOnUiThread(() -> Toast.makeText(this, "Image upload failed: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                runOnUiThread(() -> Toast.makeText(ArticleDetailActivity.this, "Image upload failed: " + e.getMessage(), Toast.LENGTH_SHORT).show());
             }
         }).start();
     }
