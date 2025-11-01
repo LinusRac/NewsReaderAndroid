@@ -25,6 +25,8 @@ import com.example.newsreader.exceptions.ServerCommunicationError;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 public class AddArticleActivity extends AppCompatActivity {
@@ -85,12 +87,27 @@ public class AddArticleActivity extends AppCompatActivity {
 
     private void saveArticle() {
         String category = spinnerArticleCategory.getSelectedItem().toString();
-        String title = editArticleTitle.getText().toString();
-        String abstractText = editArticleAbstract.getText().toString();
-        String body = editArticleBody.getText().toString();
+        String title = editArticleTitle.getText().toString().trim();
+        String abstractText = editArticleAbstract.getText().toString().trim();
+        String body = editArticleBody.getText().toString().trim();
 
-        if (category.isEmpty() || title.isEmpty() || abstractText.isEmpty() || body.isEmpty()) {
-            Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show();
+        List<String> missingFields = new ArrayList<>();
+        if (title.isEmpty()) {
+            missingFields.add("Title");
+        }
+        if (abstractText.isEmpty()) {
+            missingFields.add("Abstract");
+        }
+        if (body.isEmpty()) {
+            missingFields.add("Body");
+        }
+        if (imageBase64 == null || imageBase64.isEmpty()) {
+            missingFields.add("Image");
+        }
+
+        if (!missingFields.isEmpty()) {
+            String missingFieldsMsg = "Please fill in all mandatory fields: " + String.join(", ", missingFields);
+            Toast.makeText(this, missingFieldsMsg, Toast.LENGTH_LONG).show();
             return;
         }
 
