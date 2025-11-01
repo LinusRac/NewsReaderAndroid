@@ -22,7 +22,12 @@ import com.example.newsreader.exceptions.AuthenticationError;
 import com.example.newsreader.exceptions.ServerCommunicationError;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 import java.util.stream.Collectors;
@@ -257,6 +262,22 @@ public class MainActivity extends AppCompatActivity {
                 }
                 final ModelManager modelManager = new ModelManager(properties);
                 allArticles = modelManager.getArticles(1024, 0);
+
+                if (allArticles != null) {
+                    Collections.sort(allArticles, new Comparator<Article>() {
+                        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                        @Override
+                        public int compare(Article o1, Article o2) {
+                            try {
+                                Date d1 = sdf.parse(o1.getLastModified());
+                                Date d2 = sdf.parse(o2.getLastModified());
+                                return d2.compareTo(d1);
+                            } catch (ParseException e) {
+                                return 0;
+                            }
+                        }
+                    });
+                }
 
                 runOnUiThread(() -> {
                     if (allArticles != null) {
