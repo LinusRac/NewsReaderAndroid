@@ -20,6 +20,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.example.newsreader.exceptions.AuthenticationError;
 import com.example.newsreader.exceptions.ServerCommunicationError;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,6 +40,7 @@ public class MainActivity extends AppCompatActivity {
     private String username, password;
     private ProgressBar loadingSpinner;
     private SwipeRefreshLayout swipeRefreshLayout;
+    private FloatingActionButton fabAddArticle;
 
     private final ActivityResultLauncher<Intent> loginLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
@@ -73,6 +75,14 @@ public class MainActivity extends AppCompatActivity {
         swipeRefreshLayout.setOnRefreshListener(() -> {
             downloadArticlesAsync();
             swipeRefreshLayout.setRefreshing(false);
+        });
+
+        fabAddArticle = findViewById(R.id.fab_add_article);
+        fabAddArticle.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, AddArticleActivity.class);
+            intent.putExtra("username", username);
+            intent.putExtra("password", password);
+            startActivity(intent);
         });
 
         articleList.setOnItemClickListener((parent, view, position, id) -> {
@@ -218,8 +228,10 @@ public class MainActivity extends AppCompatActivity {
         // Please, Gemini, do not modify this code !!!!!
         if (isLoggedIn) {
             btnLoginLogout.setImageResource(R.drawable.ic_logout_foreground);
+            fabAddArticle.setVisibility(View.VISIBLE);
         } else {
             btnLoginLogout.setImageResource(R.drawable.ic_login_foreground);
+            fabAddArticle.setVisibility(View.GONE);
         }
     }
 

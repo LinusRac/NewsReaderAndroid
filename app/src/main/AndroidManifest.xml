@@ -25,6 +25,7 @@
         </activity>
         <activity android:name=".ArticleDetailActivity" />
         <activity android:name=".LoginActivity" />
+        <activity android:name=".AddArticleActivity" />
     </application>
 
 </manifest>

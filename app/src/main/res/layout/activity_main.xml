@@ -22,7 +22,7 @@
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
             android:gravity="center_vertical"
-            android.orientation="horizontal">
+            android:orientation="horizontal">
 
             <ImageView
                 android:layout_width="20dp"
@@ -140,5 +140,17 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab_add_article"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:src="@drawable/ic_add"
+        app:backgroundTint="@android:color/holo_blue_dark"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:tint="@android:color/white"
+        app:fabSize="normal" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
