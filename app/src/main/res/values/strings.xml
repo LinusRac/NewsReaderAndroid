@@ -1,4 +1,11 @@
 <resources>
     <string name="app_name">NewsReader</string>
-    <string name="article_image_description">Image for the article</string>
+    <string name="article_image_description">Image of the article</string>
+    <string-array name="article_categories">
+        <item>National</item>
+        <item>Economy</item>
+        <item>Sports</item>
+        <item>Technology</item>
+        <item>International</item>
+    </string-array>
 </resources>

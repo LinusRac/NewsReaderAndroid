@@ -56,6 +56,14 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
 
+    private final ActivityResultLauncher<Intent> addArticleLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result.getResultCode() == RESULT_OK) {
+                    downloadArticlesAsync();
+                }
+            });
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -82,7 +90,7 @@ public class MainActivity extends AppCompatActivity {
             Intent intent = new Intent(MainActivity.this, AddArticleActivity.class);
             intent.putExtra("username", username);
             intent.putExtra("password", password);
-            startActivity(intent);
+            addArticleLauncher.launch(intent);
         });
 
         articleList.setOnItemClickListener((parent, view, position, id) -> {
