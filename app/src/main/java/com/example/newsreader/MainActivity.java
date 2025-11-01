@@ -16,6 +16,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.example.newsreader.exceptions.AuthenticationError;
 import com.example.newsreader.exceptions.ServerCommunicationError;
@@ -37,6 +38,7 @@ public class MainActivity extends AppCompatActivity {
     private boolean isLoggedIn = false;
     private String username, password;
     private ProgressBar loadingSpinner;
+    private SwipeRefreshLayout swipeRefreshLayout;
 
     private final ActivityResultLauncher<Intent> loginLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
@@ -67,6 +69,12 @@ public class MainActivity extends AppCompatActivity {
         adapter = new ArticleAdapter(this, new ArrayList<>());
         articleList.setAdapter(adapter);
 
+        swipeRefreshLayout = findViewById(R.id.swipe_refresh_layout);
+        swipeRefreshLayout.setOnRefreshListener(() -> {
+            downloadArticlesAsync();
+            swipeRefreshLayout.setRefreshing(false);
+        });
+
         articleList.setOnItemClickListener((parent, view, position, id) -> {
             Article article = adapter.getItem(position);
             if (article != null) {
@@ -74,6 +82,7 @@ public class MainActivity extends AppCompatActivity {
                 if (articleIndex != -1) {
                     Intent intent = new Intent(this, ArticleDetailActivity.class);
                     intent.putExtra("articleIndex", articleIndex);
+                    intent.putExtra("isLoggedIn", isLoggedIn);
                     if (isLoggedIn) {
                         intent.putExtra("username", username);
                         intent.putExtra("password", password);
@@ -137,7 +146,7 @@ public class MainActivity extends AppCompatActivity {
                 properties.setProperty(ModelManager.ATTR_LOGIN_PASS, savedPassword);
                 properties.setProperty(ModelManager.ATTR_SERVICE_URL, "https://sanger.dia.fi.upm.es/pmd-task/");
 
-                ModelManager modelManager = new ModelManager(properties);
+                new ModelManager(properties);
 
                 runOnUiThread(() -> {
                     isLoggedIn = true;

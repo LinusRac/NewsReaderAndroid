@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.text.Html;
 import android.util.Base64;
+import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -81,6 +82,11 @@ public class ArticleDetailActivity extends AppCompatActivity {
 
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
+            boolean isLoggedIn = extras.getBoolean("isLoggedIn", false);
+            if (!isLoggedIn) {
+                btnChangeImage.setVisibility(View.GONE);
+            }
+
             int articleIndex = extras.getInt("articleIndex", -1);
 
             if (articleIndex != -1) {
