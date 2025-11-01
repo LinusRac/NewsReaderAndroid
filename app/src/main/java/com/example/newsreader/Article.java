@@ -159,6 +159,9 @@ public class Article extends ModelEntity{
 		Hashtable<String,String> res = new Hashtable<String,String>();
 		//res.put("is_public", ""+(isPublic?1:0));
 		//res.put("id_user", ""+idUser);
+		if (id != -1) {
+		    res.put("id", String.valueOf(id));
+		}
 		res.put("category", category);
 		res.put("abstract", abstractText);
 		res.put("title", titleText);

@@ -119,7 +119,7 @@ public class ArticleDetailActivity extends AppCompatActivity {
     private void uploadImageToServer() {
         new Thread(() -> {
             try {
-                this.article.save();
+                this.article.getImage().save();
                 runOnUiThread(() -> Toast.makeText(ArticleDetailActivity.this, "Image uploaded successfully", Toast.LENGTH_SHORT).show());
             } catch (Exception e) {
                 runOnUiThread(() -> Toast.makeText(ArticleDetailActivity.this, "Image upload failed: " + e.getMessage(), Toast.LENGTH_SHORT).show());
