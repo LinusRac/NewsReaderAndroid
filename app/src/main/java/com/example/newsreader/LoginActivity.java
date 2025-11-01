@@ -49,6 +49,8 @@ public class LoginActivity extends AppCompatActivity {
 
                     ModelManager modelManager = new ModelManager(properties);
 
+                    runOnUiThread(() -> Toast.makeText(LoginActivity.this, "Login successful", Toast.LENGTH_SHORT).show());
+
                     if (checkRememberMe.isChecked()) {
                         SharedPreferences.Editor editor = getSharedPreferences(PREFS_NAME, MODE_PRIVATE).edit();
                         editor.putString(PREF_USERNAME, username);
