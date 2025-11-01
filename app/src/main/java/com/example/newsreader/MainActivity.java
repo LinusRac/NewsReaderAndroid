@@ -52,6 +52,7 @@ public class MainActivity extends AppCompatActivity {
                         username = data.getStringExtra("username");
                         password = data.getStringExtra("password");
                         updateLoginButton();
+                        downloadArticlesAsync();
                     }
                 }
             });
@@ -157,6 +158,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void autoLogin(String savedUsername, String savedPassword) {
+        runOnUiThread(() -> loadingSpinner.setVisibility(View.VISIBLE));
         new Thread(() -> {
             try {
                 Properties properties = new Properties();
