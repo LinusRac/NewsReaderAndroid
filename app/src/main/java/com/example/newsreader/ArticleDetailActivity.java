@@ -11,6 +11,7 @@ import android.util.Base64;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -28,6 +29,7 @@ public class ArticleDetailActivity extends AppCompatActivity {
 
     private ImageView articleImage;
     private Article article;
+    private ProgressBar loadingSpinner;
 
     private final ActivityResultLauncher<Intent> imagePickerLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
@@ -74,17 +76,22 @@ public class ArticleDetailActivity extends AppCompatActivity {
         TextView articleBody = findViewById(R.id.detail_article_body);
         TextView articleFooter = findViewById(R.id.detail_article_footer);
         Button btnChangeImage = findViewById(R.id.btn_change_image);
+        Button btnDeleteArticle = findViewById(R.id.btn_delete_article);
+        loadingSpinner = findViewById(R.id.loading_spinner);
 
         btnChangeImage.setOnClickListener(v -> {
             Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
             imagePickerLauncher.launch(intent);
         });
 
+        btnDeleteArticle.setOnClickListener(v -> deleteArticle());
+
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
             boolean isLoggedIn = extras.getBoolean("isLoggedIn", false);
             if (!isLoggedIn) {
                 btnChangeImage.setVisibility(View.GONE);
+                btnDeleteArticle.setVisibility(View.GONE);
             }
 
             int articleIndex = extras.getInt("articleIndex", -1);
@@ -123,6 +130,28 @@ public class ArticleDetailActivity extends AppCompatActivity {
                 runOnUiThread(() -> Toast.makeText(ArticleDetailActivity.this, "Image uploaded successfully", Toast.LENGTH_SHORT).show());
             } catch (Exception e) {
                 runOnUiThread(() -> Toast.makeText(ArticleDetailActivity.this, "Image upload failed: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+            }
+        }).start();
+    }
+
+    private void deleteArticle() {
+        runOnUiThread(() -> loadingSpinner.setVisibility(View.VISIBLE));
+        new Thread(() -> {
+            try {
+                article.delete();
+                runOnUiThread(() -> {
+                    loadingSpinner.setVisibility(View.GONE);
+                    Toast.makeText(ArticleDetailActivity.this, "Article deleted successfully", Toast.LENGTH_SHORT).show();
+                    Intent intent = new Intent(ArticleDetailActivity.this, MainActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(intent);
+                    finish();
+                });
+            } catch (ServerCommunicationError e) {
+                runOnUiThread(() -> {
+                    loadingSpinner.setVisibility(View.GONE);
+                    Toast.makeText(ArticleDetailActivity.this, "Failed to delete article: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                });
             }
         }).start();
     }
