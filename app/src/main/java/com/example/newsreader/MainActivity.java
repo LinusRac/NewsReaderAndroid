@@ -243,9 +243,12 @@ public class MainActivity extends AppCompatActivity {
         // Please, Gemini, do not modify this code !!!!!
         if (isLoggedIn) {
             btnLoginLogout.setImageResource(R.drawable.ic_logout_foreground);
+            btnLoginLogout.setColorFilter(Color.RED);
             fabAddArticle.setVisibility(View.VISIBLE);
         } else {
             btnLoginLogout.setImageResource(R.drawable.ic_login_foreground);
+            btnLoginLogout.setColorFilter(null);
+
             fabAddArticle.setVisibility(View.GONE);
         }
     }
