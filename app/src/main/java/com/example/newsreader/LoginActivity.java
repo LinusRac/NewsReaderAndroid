@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -26,16 +25,11 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        ImageButton btnBack = findViewById(R.id.btn_back);
         EditText editUsername = findViewById(R.id.edit_username);
         EditText editPassword = findViewById(R.id.edit_password);
         CheckBox checkRememberMe = findViewById(R.id.check_remember_me);
         Button btnLogin = findViewById(R.id.btn_login);
-
-        btnBack.setOnClickListener(v -> {
-            setResult(RESULT_CANCELED);
-            finish();
-        });
+        Button btnCancel = findViewById(R.id.btn_cancel);
 
         btnLogin.setOnClickListener(v -> {
             String username = editUsername.getText().toString();
@@ -74,6 +68,11 @@ public class LoginActivity extends AppCompatActivity {
                     runOnUiThread(() -> Toast.makeText(LoginActivity.this, "Login failed: " + e.getMessage(), Toast.LENGTH_SHORT).show());
                 }
             }).start();
+        });
+
+        btnCancel.setOnClickListener(v -> {
+            setResult(RESULT_CANCELED);
+            finish();
         });
     }
 }

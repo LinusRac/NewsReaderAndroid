@@ -10,7 +10,6 @@ import android.text.Html;
 import android.util.Base64;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -25,15 +24,12 @@ import com.example.newsreader.exceptions.ServerCommunicationError;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.Serializable;
 
 public class ArticleDetailActivity extends AppCompatActivity {
 
     private ImageView articleImage;
     private Article article;
     private ProgressBar loadingSpinner;
-    private String username;
-    private String password;
 
     private final ActivityResultLauncher<Intent> imagePickerLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
@@ -68,7 +64,7 @@ public class ArticleDetailActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_article_detail);
 
-        ImageButton btnBack = findViewById(R.id.btn_back);
+        Button btnBack = findViewById(R.id.btn_back);
         btnBack.setOnClickListener(v -> finish());
 
         articleImage = findViewById(R.id.detail_article_image);
@@ -80,7 +76,6 @@ public class ArticleDetailActivity extends AppCompatActivity {
         TextView articleBody = findViewById(R.id.detail_article_body);
         TextView articleFooter = findViewById(R.id.detail_article_footer);
         Button btnChangeImage = findViewById(R.id.btn_change_image);
-        Button btnEditArticle = findViewById(R.id.btn_edit_article);
         Button btnDeleteArticle = findViewById(R.id.btn_delete_article);
         loadingSpinner = findViewById(R.id.loading_spinner);
 
@@ -89,24 +84,13 @@ public class ArticleDetailActivity extends AppCompatActivity {
             imagePickerLauncher.launch(intent);
         });
 
-        btnEditArticle.setOnClickListener(v -> {
-            Intent intent = new Intent(ArticleDetailActivity.this, AddArticleActivity.class);
-            intent.putExtra("article", (Serializable) article);
-            intent.putExtra("username", username);
-            intent.putExtra("password", password);
-            startActivity(intent);
-        });
-
         btnDeleteArticle.setOnClickListener(v -> deleteArticle());
 
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
-            username = extras.getString("username");
-            password = extras.getString("password");
             boolean isLoggedIn = extras.getBoolean("isLoggedIn", false);
             if (!isLoggedIn) {
                 btnChangeImage.setVisibility(View.GONE);
-                btnEditArticle.setVisibility(View.GONE);
                 btnDeleteArticle.setVisibility(View.GONE);
             }
 
@@ -140,19 +124,12 @@ public class ArticleDetailActivity extends AppCompatActivity {
     }
 
     private void uploadImageToServer() {
-        runOnUiThread(() -> loadingSpinner.setVisibility(View.VISIBLE));
         new Thread(() -> {
             try {
                 this.article.getImage().save();
-                runOnUiThread(() -> {
-                    loadingSpinner.setVisibility(View.GONE);
-                    Toast.makeText(ArticleDetailActivity.this, "Image uploaded successfully", Toast.LENGTH_SHORT).show();
-                });
+                runOnUiThread(() -> Toast.makeText(ArticleDetailActivity.this, "Image uploaded successfully", Toast.LENGTH_SHORT).show());
             } catch (Exception e) {
-                runOnUiThread(() -> {
-                    loadingSpinner.setVisibility(View.GONE);
-                    Toast.makeText(ArticleDetailActivity.this, "Image upload failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                });
+                runOnUiThread(() -> Toast.makeText(ArticleDetailActivity.this, "Image upload failed: " + e.getMessage(), Toast.LENGTH_SHORT).show());
             }
         }).start();
     }
